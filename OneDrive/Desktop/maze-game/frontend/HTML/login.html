@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Maze Game - Login</title>
+    <link rel="stylesheet" href="../CSS/login.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- LOGIN CARD -->
+    <div class="card" id="loginCard">
+        <div class="header">
+            <div class="logo-container">
+                <img src="../../images/logo.jpeg" class="logo" alt="AI Maze Game Logo">
+            </div>
+            <h1>AI MAZE <span>GAME</span></h1>
+            <p>Initialize your agent credentials</p>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="Enter Email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="Enter Password" required>
+            </div>
+            <button class="btn" type="submit">LOGIN</button>
+        </form>
+        <div class="switch-form">
+            New User? <a href="#" id="showRegister">Register</a>
+        </div>
+    </div>
+
+    <!-- REGISTER CARD -->
+    <div class="card hidden" id="registerCard">
+        <div class="header">
+            <div class="logo-container">
+                <img src="../../images/logo.jpeg" class="logo" alt="AI Maze Game Logo">
+            </div>
+            <h1>AI MAZE <span>GAME</span></h1>
+            <p>Create your account</p>
+        </div>
+        <form id="registerForm">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="Email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="Password" required>
+            </div>
+            <button class="btn" type="submit">REGISTER</button>
+        </form>
+        <div class="switch-form">
+            Already have an account? <a href="#" id="showLogin">Login</a>
+        </div>
+    </div>
+
+</div>
+
+<script src="../JS/login.js"></script>
+</body>
+</html>

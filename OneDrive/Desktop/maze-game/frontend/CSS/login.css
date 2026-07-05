@@ -1,0 +1,143 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #060b1f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    background: linear-gradient(135deg, #0b1740, #132b6e);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    border-radius: 16px;
+    padding: 40px 36px;
+    width: 400px;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.1);
+    animation: fadeIn 0.5s ease;
+}
+
+.card.hidden {
+    display: none;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logo-container {
+    margin-bottom: 14px;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+    filter: drop-shadow(0 0 12px cyan);
+    animation: zoom 1s ease;
+}
+
+.header h1 {
+    color: white;
+    font-size: 26px;
+    letter-spacing: 3px;
+}
+
+.header h1 span {
+    color: cyan;
+}
+
+.header p {
+    color: #aaa;
+    font-size: 13px;
+    margin-top: 6px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    color: #ccc;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 11px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.3s;
+}
+
+.form-group input:focus {
+    border-color: cyan;
+    box-shadow: 0 0 8px rgba(0, 255, 255, 0.3);
+}
+
+.btn {
+    width: 100%;
+    padding: 13px;
+    background: cyan;
+    color: black;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: 0.3s;
+    margin-top: 6px;
+}
+
+.btn:hover {
+    background: #00d5ff;
+    box-shadow: 0 0 20px cyan;
+    transform: scale(1.03);
+}
+
+.switch-form {
+    text-align: center;
+    color: #aaa;
+    font-size: 13px;
+    margin-top: 20px;
+}
+
+.switch-form a {
+    color: cyan;
+    text-decoration: none;
+    margin-left: 6px;
+}
+
+.switch-form a:hover {
+    text-decoration: underline;
+}
+
+@keyframes zoom {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
