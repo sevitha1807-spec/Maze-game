@@ -8,3 +8,9 @@ window.onload = function () {
     },3000);
 
 };
+
+document.getElementById("loginBtn").addEventListener("click", function () {
+
+    window.location.href = "login.html";
+
+});
