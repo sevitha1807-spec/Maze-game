@@ -10,6 +10,7 @@ let solving      = false;
 let difficulty   = localStorage.getItem("difficulty") || "basic";
 let hintsLeft    = 3;
 let hintCells    = [];     // cells currently highlighted as hint
+let lastDir      = 0;      // rotation angle in radians for player arrow
 
 // ── Canvas setup ──────────────────────────────
 const canvas = document.getElementById("mazeCanvas");
@@ -129,61 +130,178 @@ function drawMaze() {
                     ctx.fillRect(x, y, 2, cell);          // left edge
                 }
             } else {
-                // Path — lighter floor with subtle grid lines
-                ctx.fillStyle = "#0d1f45";
+                // Path — bright floor so corridors clearly stand out
+                ctx.fillStyle = "#162850";
                 ctx.fillRect(x, y, cell, cell);
 
-                // Grid line on path cells — makes corridors clearly visible
-                ctx.strokeStyle = "rgba(0, 100, 180, 0.35)";
-                ctx.lineWidth   = 0.5;
+                // Visible grid line on path
+                ctx.strokeStyle = "rgba(30, 120, 220, 0.5)";
+                ctx.lineWidth   = 0.8;
                 ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
+
+                // Small center dot for texture (only on larger cells)
+                if (cell >= 18) {
+                    ctx.fillStyle = "rgba(60, 140, 255, 0.18)";
+                    const dotR = cell * 0.08;
+                    ctx.beginPath();
+                    ctx.arc(x + cell / 2, y + cell / 2, dotR, 0, Math.PI * 2);
+                    ctx.fill();
+                }
             }
         }
     }
 
-    // Draw end (goal)
-    drawCell(mazeData.end[0], mazeData.end[1], "#ff00ff", "★", cell);
+    // Draw end — flag on pole
+    drawFlag(mazeData.end[0], mazeData.end[1], cell);
 
-    // Draw start
-    drawCell(mazeData.start[0], mazeData.start[1], "#00ff88", "S", cell);
+    // Draw start — rocket
+    drawStart(mazeData.start[0], mazeData.start[1], cell);
 
     // Draw hint cells
     if (hintCells.length > 0) {
         drawHintCells(cell);
     }
 
-    // Draw player
+    // Draw player — glowing arrow
     drawPlayer(playerPos[0], playerPos[1], cell);
 }
 
-function drawCell(r, c, color, label, cell) {
-    const x = c * cell;
-    const y = r * cell;
+// ── Draw START — green glowing rocket ────────
+function drawStart(r, c, cell) {
+    const x  = c * cell + cell / 2;
+    const y  = r * cell + cell / 2;
+    const s  = cell * 0.38;
 
-    ctx.fillStyle = color + "22";
-    ctx.fillRect(x, y, cell, cell);
-
-    ctx.fillStyle   = color;
-    ctx.font        = `bold ${Math.max(10, cell * 0.5)}px Arial`;
-    ctx.textAlign   = "center";
-    ctx.textBaseline= "middle";
-    ctx.fillText(label, x + cell / 2, y + cell / 2);
-}
-
-function drawPlayer(r, c, cell) {
-    const x = c * cell + cell / 2;
-    const y = r * cell + cell / 2;
-    const radius = cell * 0.35;
-
-    // Glow effect
-    ctx.shadowColor = "cyan";
-    ctx.shadowBlur  = 12;
-
+    // Background glow circle
+    ctx.shadowColor = "#00ff88";
+    ctx.shadowBlur  = cell * 0.6;
+    ctx.fillStyle   = "rgba(0,255,136,0.18)";
     ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fillStyle = "cyan";
+    ctx.arc(x, y, s * 1.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur  = 0;
+
+    // Draw rocket body (pointing up)
+    ctx.save();
+    ctx.translate(x, y);
+
+    // Body
+    ctx.fillStyle = "#00ff88";
+    ctx.beginPath();
+    ctx.moveTo(0, -s);          // nose
+    ctx.lineTo(s * 0.45, s * 0.3);
+    ctx.lineTo(-s * 0.45, s * 0.3);
+    ctx.closePath();
     ctx.fill();
 
+    // Fins left
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.45, s * 0.1);
+    ctx.lineTo(-s * 0.8, s * 0.6);
+    ctx.lineTo(-s * 0.25, s * 0.4);
+    ctx.closePath();
+    ctx.fill();
+
+    // Fins right
+    ctx.beginPath();
+    ctx.moveTo(s * 0.45, s * 0.1);
+    ctx.lineTo(s * 0.8, s * 0.6);
+    ctx.lineTo(s * 0.25, s * 0.4);
+    ctx.closePath();
+    ctx.fill();
+
+    // Flame
+    ctx.fillStyle = "#ffd700";
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.2, s * 0.35);
+    ctx.lineTo(0, s * 0.75);
+    ctx.lineTo(s * 0.2, s * 0.35);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+}
+
+// ── Draw END — chequered flag on pole ────────
+function drawFlag(r, c, cell) {
+    const x  = c * cell;
+    const y  = r * cell;
+    const s  = cell;
+
+    // Background glow
+    ctx.shadowColor = "#ff00cc";
+    ctx.shadowBlur  = cell * 0.7;
+    ctx.fillStyle   = "rgba(255,0,204,0.15)";
+    ctx.fillRect(x, y, s, s);
+    ctx.shadowBlur  = 0;
+
+    const px  = x + s * 0.22;   // pole x
+    const top = y + s * 0.1;
+    const bot = y + s * 0.92;
+    const fw  = s * 0.52;        // flag width
+    const fh  = s * 0.38;        // flag height
+
+    // Pole
+    ctx.strokeStyle = "#ff80df";
+    ctx.lineWidth   = Math.max(1.5, s * 0.06);
+    ctx.shadowColor = "#ff00cc";
+    ctx.shadowBlur  = 4;
+    ctx.beginPath();
+    ctx.moveTo(px, top);
+    ctx.lineTo(px, bot);
+    ctx.stroke();
+    ctx.shadowBlur  = 0;
+
+    // Chequered flag — 4x3 squares
+    const sqW = fw / 4;
+    const sqH = fh / 3;
+    for (let row = 0; row < 3; row++) {
+        for (let col = 0; col < 4; col++) {
+            ctx.fillStyle = (row + col) % 2 === 0 ? "#ffffff" : "#cc00aa";
+            ctx.fillRect(px + col * sqW, top + row * sqH, sqW, sqH);
+        }
+    }
+
+    // Flag border
+    ctx.strokeStyle = "#ff00cc";
+    ctx.lineWidth   = 0.8;
+    ctx.strokeRect(px, top, fw, fh);
+}
+
+// ── Draw PLAYER — glowing neon arrow ─────────
+function drawPlayer(r, c, cell) {
+    const x  = c * cell + cell / 2;
+    const y  = r * cell + cell / 2;
+    const s  = cell * 0.38;
+
+    ctx.shadowColor = "cyan";
+    ctx.shadowBlur  = cell * 0.7;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(lastDir);
+
+    // Outer ring
+    ctx.strokeStyle = "rgba(0,255,255,0.5)";
+    ctx.lineWidth   = Math.max(1, s * 0.2);
+    ctx.beginPath();
+    ctx.arc(0, 0, s * 1.15, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Arrow body (pointing up — rotates with last move direction handled via state)
+    ctx.fillStyle = "cyan";
+    ctx.beginPath();
+    ctx.moveTo(0, -s);            // tip
+    ctx.lineTo(s * 0.55, s * 0.5);
+    ctx.lineTo(s * 0.2, s * 0.2);
+    ctx.lineTo(s * 0.2, s * 0.8);
+    ctx.lineTo(-s * 0.2, s * 0.8);
+    ctx.lineTo(-s * 0.2, s * 0.2);
+    ctx.lineTo(-s * 0.55, s * 0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
     ctx.shadowBlur = 0;
 }
 
@@ -300,6 +418,12 @@ function handleKey(e) {
     // Boundary + wall check
     if (nr < 0 || nc < 0 || nr >= mazeData.rows || nc >= mazeData.cols) return;
     if (mazeData.maze[nr][nc] === 1) return;
+
+    const dirAngles = {
+        ArrowUp: 0, ArrowDown: Math.PI,
+        ArrowLeft: -Math.PI / 2, ArrowRight: Math.PI / 2
+    };
+    if (dirAngles[e.key] !== undefined) lastDir = dirAngles[e.key];
 
     playerPos = [nr, nc];
     moveCount++;
