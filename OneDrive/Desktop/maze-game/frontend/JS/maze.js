@@ -509,25 +509,20 @@ function updateStats() {
 
 // ── Win modal ─────────────────────────────────
 function showWin(aiSolved = false) {
-    const optimalMoves = mazeData.steps - 1;   // path length - 1 = moves
+    const optimalMoves = mazeData.optimal_moves;   // from backend algorithm
     const playerMoves  = moveCount;
     const timeTaken    = seconds;
+    const baseScore    = mazeData.base_score;       // longer path = higher base
 
     // Efficiency: how close player was to the optimal path (capped at 100%)
     const efficiency = Math.min(100, Math.round((optimalMoves / Math.max(playerMoves, 1)) * 100));
 
-    // Score formula:
-    //   Base = 1000 points
-    //   Deduct 5 per extra move beyond optimal
-    //   Deduct 2 per second taken
-    //   Bonus multiplier per difficulty
-    const diffMultiplier = { basic: 1, medium: 1.5, hard: 2 };
-    const extraMoves     = Math.max(0, playerMoves - optimalMoves);
-    const baseScore      = 1000;
-    const movePenalty    = extraMoves * 5;
-    const timePenalty    = timeTaken * 2;
-    const rawScore       = Math.max(0, baseScore - movePenalty - timePenalty);
-    const finalScore     = Math.round(rawScore * (diffMultiplier[difficulty] || 1));
+    // Score: starts from base_score (tied to path length + difficulty)
+    // Penalty for extra moves and time — rewards players who take the shortest path
+    const extraMoves  = Math.max(0, playerMoves - optimalMoves);
+    const movePenalty = extraMoves * 3;
+    const timePenalty = timeTaken * 1;
+    const finalScore  = Math.max(0, baseScore - movePenalty - timePenalty);
 
     // Populate modal
     document.getElementById("winTitle").textContent     = aiSolved ? "🤖 AI Solved It!" : "🎉 You Solved It!";

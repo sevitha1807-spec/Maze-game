@@ -28,41 +28,72 @@ def get_db():
 
 
 # ──────────────────────────────────────────────
-# MAZE GENERATION — Recursive Backtracker (DFS)
-# Produces a perfect maze (exactly one path between any two cells)
+# MAZE GENERATION — Recursive Backtracker + Loop Carving
+#
+# Step 1: Recursive Backtracker (DFS) creates a perfect maze (no loops, 1 path)
+# Step 2: Loop carving removes a % of walls to create multiple routes
+# Step 3: Algorithm (BFS/Dijkstra/A*) finds the ONE shortest path among all routes
 # ──────────────────────────────────────────────
 
-def generate_maze(rows, cols):
+def generate_maze(rows, cols, loop_factor=0.18):
     """
-    Generate a maze using Recursive Backtracker (DFS).
-    Returns a 2D grid where 0=path, 1=wall.
-    Grid size is (2*rows+1) x (2*cols+1) to include walls between cells.
+    Generate a maze with multiple paths using Recursive Backtracker + Loop Carving.
+
+    rows, cols   : logical cell dimensions
+    loop_factor  : fraction of interior walls to remove (0=perfect maze, 0.3=many loops)
+
+    Returns a 2D grid: 0=path, 1=wall
+    Grid size is (2*rows+1) x (2*cols+1)
     """
-    grid_rows = 2 * rows + 1
-    grid_cols = 2 * cols + 1
-
-    # Start all walls
-    maze = [[1] * grid_cols for _ in range(grid_rows)]
-
-    def carve(r, c):
-        # Mark this cell as open
-        maze[2 * r + 1][2 * c + 1] = 0
-        directions = [(0, 1), (0, -1), (1, 0), (-1, 0)]
-        random.shuffle(directions)
-        for dr, dc in directions:
-            nr, nc = r + dr, c + dc
-            if 0 <= nr < rows and 0 <= nc < cols and maze[2*nr+1][2*nc+1] == 1:
-                # Remove wall between current and neighbour
-                maze[2*r+1 + dr][2*c+1 + dc] = 0
-                carve(nr, nc)
-
     import sys
     sys.setrecursionlimit(10000)
+
+    grid_rows = 2 * rows + 1
+    grid_cols = 2 * cols + 1
+    maze = [[1] * grid_cols for _ in range(grid_rows)]
+
+    # ── Step 1: Recursive Backtracker (DFS) ──
+    visited = [[False] * cols for _ in range(rows)]
+
+    def carve(r, c):
+        visited[r][c] = True
+        maze[2*r+1][2*c+1] = 0
+        directions = [(0,1),(0,-1),(1,0),(-1,0)]
+        random.shuffle(directions)
+        for dr, dc in directions:
+            nr, nc = r+dr, c+dc
+            if 0 <= nr < rows and 0 <= nc < cols and not visited[nr][nc]:
+                # Remove wall between (r,c) and (nr,nc)
+                maze[2*r+1+dr][2*c+1+dc] = 0
+                carve(nr, nc)
+
     carve(0, 0)
 
-    # Ensure start and end are open
+    # ── Step 2: Loop Carving — remove extra walls to create multiple paths ──
+    # Collect all removable interior walls (walls between two open cells)
+    removable = []
+    for r in range(1, grid_rows - 1):
+        for c in range(1, grid_cols - 1):
+            if maze[r][c] == 1:
+                # Horizontal wall between two path cells
+                if r % 2 == 0 and c % 2 == 1:
+                    if maze[r-1][c] == 0 and maze[r+1][c] == 0:
+                        removable.append((r, c))
+                # Vertical wall between two path cells
+                elif r % 2 == 1 and c % 2 == 0:
+                    if maze[r][c-1] == 0 and maze[r][c+1] == 0:
+                        removable.append((r, c))
+
+    # Remove a random fraction of these walls
+    random.shuffle(removable)
+    n_remove = int(len(removable) * loop_factor)
+    for i in range(n_remove):
+        wr, wc = removable[i]
+        maze[wr][wc] = 0
+
+    # Ensure start and end are always open
     maze[1][1] = 0
-    maze[grid_rows - 2][grid_cols - 2] = 0
+    maze[grid_rows-2][grid_cols-2] = 0
 
     return maze
 
@@ -172,9 +203,9 @@ def astar_solve(maze, start, end):
 # ──────────────────────────────────────────────
 
 DIFFICULTY = {
-    "basic":  {"rows": 8,  "cols": 8,  "algorithm": "BFS"},
-    "medium": {"rows": 15, "cols": 15, "algorithm": "Dijkstra"},
-    "hard":   {"rows": 25, "cols": 25, "algorithm": "A*"},
+    "basic":  {"rows": 8,  "cols": 8,  "algorithm": "BFS",      "loop_factor": 0.12},
+    "medium": {"rows": 15, "cols": 15, "algorithm": "Dijkstra",  "loop_factor": 0.20},
+    "hard":   {"rows": 25, "cols": 25, "algorithm": "A*",        "loop_factor": 0.28},
 }
 
 
@@ -196,19 +227,20 @@ def generate_maze_route():
     if difficulty not in DIFFICULTY:
         return jsonify({"error": "Invalid difficulty. Choose basic, medium, or hard"}), 400
 
-    config = DIFFICULTY[difficulty]
-    rows   = config["rows"]
-    cols   = config["cols"]
-    algo   = config["algorithm"]
+    config      = DIFFICULTY[difficulty]
+    rows        = config["rows"]
+    cols        = config["cols"]
+    algo        = config["algorithm"]
+    loop_factor = config["loop_factor"]
 
-    maze       = generate_maze(rows, cols)
-    grid_rows  = len(maze)
-    grid_cols  = len(maze[0])
+    maze      = generate_maze(rows, cols, loop_factor)
+    grid_rows = len(maze)
+    grid_cols = len(maze[0])
 
     start = [1, 1]
     end   = [grid_rows - 2, grid_cols - 2]
 
-    # Solve using the algorithm for this difficulty
+    # Use the algorithm to find the ONE shortest path among all routes
     if algo == "BFS":
         path = bfs_solve(maze, start, end)
     elif algo == "Dijkstra":
@@ -216,16 +248,25 @@ def generate_maze_route():
     else:  # A*
         path = astar_solve(maze, start, end)
 
+    shortest_steps = len(path) - 1 if path else 0   # moves = steps - 1
+
+    # Base score scales with path length — longer maze = higher reward
+    # Formula: shortest_steps * difficulty_multiplier * 10
+    diff_multiplier = {"basic": 1, "medium": 1.5, "hard": 2}
+    base_score      = int(shortest_steps * diff_multiplier[difficulty] * 10)
+
     return jsonify({
-        "maze":       maze,
-        "start":      start,
-        "end":        end,
-        "path":       path,
-        "steps":      len(path),
-        "algorithm":  algo,
-        "difficulty": difficulty,
-        "rows":       grid_rows,
-        "cols":       grid_cols
+        "maze":         maze,
+        "start":        start,
+        "end":          end,
+        "path":         path,
+        "steps":        len(path),
+        "algorithm":    algo,
+        "difficulty":   difficulty,
+        "rows":         grid_rows,
+        "cols":         grid_cols,
+        "base_score":   base_score,       # max possible score for this maze
+        "optimal_moves": shortest_steps,  # moves in the shortest path
     }), 200
 
 
