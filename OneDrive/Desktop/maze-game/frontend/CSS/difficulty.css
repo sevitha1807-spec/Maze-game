@@ -1,0 +1,192 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #060b1f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.page {
+    width: 100%;
+    max-width: 900px;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+}
+
+/* ── Header ── */
+.header {
+    text-align: center;
+}
+
+.logo {
+    width: 80px;
+    height: auto;
+    filter: drop-shadow(0 0 12px cyan);
+    animation: zoom 1s ease;
+    margin-bottom: 12px;
+}
+
+.header h1 {
+    color: white;
+    font-size: 32px;
+    letter-spacing: 3px;
+}
+
+.header h1 span {
+    color: cyan;
+}
+
+.subtitle {
+    color: #aaa;
+    font-size: 15px;
+    margin-top: 8px;
+    letter-spacing: 1px;
+}
+
+/* ── Level Cards ── */
+.levels {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.level-card {
+    background: linear-gradient(135deg, #0b1740, #132b6e);
+    border: 2px solid rgba(0, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 30px 24px;
+    width: 240px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    animation: fadeUp 0.5s ease both;
+}
+
+.level-card:nth-child(1) { animation-delay: 0.1s; }
+.level-card:nth-child(2) { animation-delay: 0.2s; }
+.level-card:nth-child(3) { animation-delay: 0.3s; }
+
+.level-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0, 255, 255, 0.5);
+    box-shadow: 0 8px 24px rgba(0, 255, 255, 0.15);
+}
+
+.level-card.selected {
+    border-color: cyan;
+    box-shadow: 0 0 24px rgba(0, 255, 255, 0.4);
+    transform: translateY(-6px);
+}
+
+/* individual selected colors */
+#basicCard.selected  { border-color: #00ff88; box-shadow: 0 0 24px rgba(0, 255, 136, 0.4); }
+#mediumCard.selected { border-color: #ffd700; box-shadow: 0 0 24px rgba(255, 215, 0, 0.4); }
+#hardCard.selected   { border-color: #ff4444; box-shadow: 0 0 24px rgba(255, 68, 68, 0.4); }
+
+.icon {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 16px auto;
+    transition: transform 0.3s;
+}
+
+.icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.basic-icon  { filter: drop-shadow(0 0 10px #00ff88); }
+.medium-icon { filter: drop-shadow(0 0 10px #ffd700); }
+.hard-icon   { filter: drop-shadow(0 0 10px #ff4444); }
+
+.level-card:hover .icon {
+    transform: scale(1.12) rotate(3deg);
+}
+
+/* Bullet dots */
+.dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 7px;
+    vertical-align: middle;
+}
+.dot.green  { background: #00ff88; box-shadow: 0 0 5px #00ff88; }
+.dot.yellow { background: #ffd700; box-shadow: 0 0 5px #ffd700; }
+.dot.red    { background: #ff4444; box-shadow: 0 0 5px #ff4444; }
+
+.level-card h2 {
+    color: white;
+    font-size: 22px;
+    margin-bottom: 6px;
+    letter-spacing: 1px;
+}
+
+.level-card p {
+    color: #aaa;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.level-card ul {
+    list-style: none;
+    text-align: left;
+    display: inline-block;
+}
+
+.level-card ul li {
+    color: #ccc;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+/* ── Start Button ── */
+.start-btn {
+    padding: 16px 70px;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    background: cyan;
+    color: black;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    animation: fadeUp 0.5s ease 0.4s both;
+}
+
+.start-btn:hover:not(:disabled) {
+    background: #00d5ff;
+    box-shadow: 0 0 24px cyan;
+    transform: scale(1.05);
+}
+
+.start-btn:disabled {
+    background: #1a3a5c;
+    color: #555;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+/* ── Animations ── */
+@keyframes zoom {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

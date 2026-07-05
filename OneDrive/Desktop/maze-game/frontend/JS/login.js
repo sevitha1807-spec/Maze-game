@@ -69,7 +69,7 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         if (res.ok) {
             setMsg("loginMsg", `Welcome back, ${data.username}! Redirecting...`, "success");
             setTimeout(() => {
-                window.location.href = "maze.html";
+                window.location.href = "difficulty.html";
             }, 1000);
         } else {
             setMsg("loginMsg", data.error || "Login failed. Try again.", "error");
