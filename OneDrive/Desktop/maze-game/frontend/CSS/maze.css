@@ -133,9 +133,9 @@ body {
 }
 
 #mazeCanvas {
-    border: 2px solid rgba(0,255,255,0.3);
+    border: 2px solid rgba(0, 200, 255, 0.7);
     border-radius: 8px;
-    box-shadow: 0 0 30px rgba(0,255,255,0.1);
+    box-shadow: 0 0 40px rgba(0, 200, 255, 0.25), 0 0 80px rgba(0, 100, 255, 0.1);
     display: block;
 }
 
