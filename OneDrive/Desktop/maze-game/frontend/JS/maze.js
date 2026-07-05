@@ -118,16 +118,16 @@ function drawMaze() {
                 ctx.fillStyle = "#040d22";
                 ctx.fillRect(x, y, cell, cell);
 
-                // Neon wall border — clearly visible
-                ctx.strokeStyle = "rgba(0, 200, 255, 0.55)";
-                ctx.lineWidth   = cell > 14 ? 1.5 : 1;
+                // Neon wall border — slightly visible
+                ctx.strokeStyle = "rgba(0, 200, 255, 0.25)";
+                ctx.lineWidth   = cell > 14 ? 1 : 0.6;
                 ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
 
                 // Inner highlight on top/left edges for 3D depth
                 if (cell >= 14) {
-                    ctx.fillStyle = "rgba(0, 180, 255, 0.12)";
-                    ctx.fillRect(x, y, cell, 2);          // top edge
-                    ctx.fillRect(x, y, 2, cell);          // left edge
+                    ctx.fillStyle = "rgba(0, 180, 255, 0.06)";
+                    ctx.fillRect(x, y, cell, 2);
+                    ctx.fillRect(x, y, 2, cell);
                 }
             } else {
                 // Path — bright floor so corridors clearly stand out
@@ -135,14 +135,14 @@ function drawMaze() {
                 ctx.fillRect(x, y, cell, cell);
 
                 // Visible grid line on path
-                ctx.strokeStyle = "rgba(30, 120, 220, 0.5)";
-                ctx.lineWidth   = 0.8;
+                ctx.strokeStyle = "rgba(30, 120, 220, 0.18)";
+                ctx.lineWidth   = 0.4;
                 ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
 
                 // Small center dot for texture (only on larger cells)
                 if (cell >= 18) {
-                    ctx.fillStyle = "rgba(60, 140, 255, 0.18)";
-                    const dotR = cell * 0.08;
+                    ctx.fillStyle = "rgba(60, 140, 255, 0.08)";
+                    const dotR = cell * 0.06;
                     ctx.beginPath();
                     ctx.arc(x + cell / 2, y + cell / 2, dotR, 0, Math.PI * 2);
                     ctx.fill();
