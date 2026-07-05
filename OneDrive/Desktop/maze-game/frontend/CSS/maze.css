@@ -1,0 +1,233 @@
+* {
+    margin: 0; padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    background: #060b1f;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow-x: hidden;
+}
+
+.maze-page {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+}
+
+/* ── Top Bar ── */
+.topbar {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(11, 23, 64, 0.9);
+    border: 1px solid rgba(0,255,255,0.2);
+    border-radius: 12px;
+    padding: 10px 20px;
+    flex-wrap: wrap;
+}
+
+.logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    filter: drop-shadow(0 0 6px cyan);
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.badge {
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+}
+.badge.basic  { background: rgba(0,255,136,0.15); color: #00ff88; border: 1px solid #00ff88; }
+.badge.medium { background: rgba(255,215,0,0.15);  color: #ffd700; border: 1px solid #ffd700; }
+.badge.hard   { background: rgba(255,68,68,0.15);  color: #ff4444; border: 1px solid #ff4444; }
+
+.algo-label {
+    color: #aaa;
+    font-size: 11px;
+}
+
+.stats {
+    display: flex;
+    gap: 20px;
+    margin-left: auto;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-label {
+    color: #888;
+    font-size: 10px;
+    letter-spacing: 1px;
+}
+
+.stat span:last-child {
+    color: cyan;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+.btn-solve, .btn-new {
+    padding: 9px 18px;
+    font-size: 13px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: 0.25s;
+}
+
+.btn-solve {
+    background: cyan;
+    color: #000;
+    box-shadow: 0 0 12px rgba(0,255,255,0.4);
+}
+.btn-solve:hover { background: #00d5ff; transform: scale(1.05); }
+
+.btn-new {
+    background: rgba(255,255,255,0.08);
+    color: #ccc;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+.btn-new:hover { background: rgba(255,255,255,0.15); color: white; }
+
+/* ── Canvas ── */
+.canvas-wrap {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#mazeCanvas {
+    border: 2px solid rgba(0,255,255,0.3);
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,255,255,0.1);
+    display: block;
+}
+
+.loading {
+    position: absolute;
+    color: cyan;
+    font-size: 18px;
+    letter-spacing: 2px;
+    animation: pulse 1s ease infinite alternate;
+}
+
+/* ── Controls Hint ── */
+.controls-hint {
+    color: #555;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+kbd {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 2px 7px;
+    color: #ccc;
+    font-size: 12px;
+}
+
+/* ── Win Modal ── */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+.modal.hidden { display: none; }
+
+.modal-box {
+    background: linear-gradient(135deg, #0b1740, #132b6e);
+    border: 2px solid cyan;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 0 40px rgba(0,255,255,0.3);
+    animation: popIn 0.4s ease;
+}
+
+.modal-box h2 {
+    color: white;
+    font-size: 28px;
+    margin-bottom: 12px;
+}
+
+.modal-box p {
+    color: #aaa;
+    font-size: 15px;
+    margin-bottom: 28px;
+}
+
+.modal-btns {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+}
+
+.modal-btns button {
+    padding: 12px 28px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.25s;
+    letter-spacing: 1px;
+}
+
+#playAgainBtn {
+    background: cyan;
+    color: black;
+    box-shadow: 0 0 16px cyan;
+}
+#playAgainBtn:hover { background: #00d5ff; transform: scale(1.05); }
+
+#changeLevelBtn {
+    background: transparent;
+    color: #aaa;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+#changeLevelBtn:hover { color: white; border-color: white; }
+
+/* ── Animations ── */
+@keyframes pulse {
+    from { opacity: 0.4; }
+    to   { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+}
