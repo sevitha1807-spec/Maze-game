@@ -97,12 +97,12 @@ def register():
         cursor = conn.cursor()
 
         # Check duplicate email
-        cursor.execute("SELECT id FROM players WHERE email = %s", (email,))
+        cursor.execute("SELECT player_id FROM players WHERE email = %s", (email,))
         if cursor.fetchone():
             return jsonify({"error": "Email already registered"}), 409
 
         cursor.execute(
-            "INSERT INTO players (username, email, password) VALUES (%s, %s, %s)",
+            "INSERT INTO players (player_name, email, password) VALUES (%s, %s, %s)",
             (username, email, hashed.decode("utf-8"))
         )
         conn.commit()
@@ -149,8 +149,8 @@ def login():
                 hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
                 upgrade_cursor = conn.cursor()
                 upgrade_cursor.execute(
-                    "UPDATE players SET password = %s WHERE id = %s",
-                    (hashed, user["id"])
+                    "UPDATE players SET password = %s WHERE player_id = %s",
+                    (hashed, user["player_id"])
                 )
                 conn.commit()
                 upgrade_cursor.close()
@@ -161,12 +161,12 @@ def login():
         if not password_ok:
             return jsonify({"error": "Invalid email or password"}), 401
 
-        session["user_id"]  = user["id"]
-        session["username"] = user["username"]
+        session["user_id"]  = user["player_id"]
+        session["username"] = user["player_name"]
 
         return jsonify({
             "message":  "Login successful!",
-            "username": user["username"]
+            "username": user["player_name"]
         }), 200
 
     except Exception as e:
@@ -220,8 +220,8 @@ def save_score():
         conn   = get_db()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO game_scores (player_id, steps, time_seconds) VALUES (%s, %s, %s)",
-            (session["user_id"], steps, time)
+            "INSERT INTO scores (player_id, time_taken, moves) VALUES (%s, %s, %s)",
+            (session["user_id"], time, steps)
         )
         conn.commit()
         cursor.close()
@@ -240,10 +240,10 @@ def leaderboard():
         conn   = get_db()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("""
-            SELECT p.username, gs.steps, gs.time_seconds, gs.played_at
-            FROM game_scores gs
-            JOIN players p ON gs.player_id = p.id
-            ORDER BY gs.steps ASC, gs.time_seconds ASC
+            SELECT p.player_name AS username, s.moves AS steps, s.time_taken AS time_seconds, s.played_on AS played_at
+            FROM scores s
+            JOIN players p ON s.player_id = p.player_id
+            ORDER BY s.moves ASC, s.time_taken ASC
             LIMIT 10
         """)
         scores = cursor.fetchall()
