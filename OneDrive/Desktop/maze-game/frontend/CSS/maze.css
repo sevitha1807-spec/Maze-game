@@ -239,3 +239,65 @@ kbd {
     from { transform: scale(0.7); opacity: 0; }
     to   { transform: scale(1);   opacity: 1; }
 }
+
+/* ── Score Board in Win Modal ── */
+.score-board {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0,255,255,0.15);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.score-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.score-row:last-child { border-bottom: none; }
+
+.score-row.final {
+    padding-top: 12px;
+    margin-top: 4px;
+}
+
+.score-label {
+    color: #aaa;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.algo-tag {
+    font-size: 10px;
+    color: cyan;
+    background: rgba(0,255,255,0.1);
+    border: 1px solid rgba(0,255,255,0.3);
+    border-radius: 10px;
+    padding: 1px 7px;
+}
+
+.score-val {
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.score-val.optimal { color: #00ff88; }
+
+.score-final {
+    color: #ffd700 !important;
+    font-size: 24px !important;
+    text-shadow: 0 0 12px #ffd700;
+}
+
+.score-divider {
+    height: 1px;
+    background: rgba(0,255,255,0.2);
+    margin: 6px 0;
+}

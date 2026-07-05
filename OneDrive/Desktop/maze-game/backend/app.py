@@ -371,9 +371,11 @@ def save_score():
     if "user_id" not in session:
         return jsonify({"error": "Not logged in"}), 401
 
-    data  = request.get_json()
-    steps = data.get("steps")
-    time  = data.get("time")
+    data       = request.get_json()
+    steps      = data.get("steps")
+    time       = data.get("time")
+    score      = data.get("score", 0)
+    difficulty = data.get("difficulty", "basic")
 
     if steps is None or time is None:
         return jsonify({"error": "steps and time are required"}), 400
@@ -382,8 +384,8 @@ def save_score():
         conn   = get_db()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO scores (player_id, time_taken, moves) VALUES (%s, %s, %s)",
-            (session["user_id"], time, steps)
+            "INSERT INTO scores (player_id, time_taken, moves, score, difficulty) VALUES (%s, %s, %s, %s, %s)",
+            (session["user_id"], time, steps, score, difficulty)
         )
         conn.commit()
         cursor.close()

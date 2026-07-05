@@ -40,8 +40,32 @@
     <!-- Win Modal -->
     <div id="winModal" class="modal hidden">
         <div class="modal-box">
-            <h2>🎉 You Solved It!</h2>
-            <p id="winStats"></p>
+            <h2 id="winTitle">🎉 You Solved It!</h2>
+
+            <div class="score-board">
+                <div class="score-row">
+                    <span class="score-label">Your Moves</span>
+                    <span class="score-val" id="wYourMoves">--</span>
+                </div>
+                <div class="score-row">
+                    <span class="score-label">Shortest Path <span class="algo-tag" id="wAlgo"></span></span>
+                    <span class="score-val optimal" id="wOptimal">--</span>
+                </div>
+                <div class="score-row">
+                    <span class="score-label">Efficiency</span>
+                    <span class="score-val" id="wEfficiency">--%</span>
+                </div>
+                <div class="score-row">
+                    <span class="score-label">Time</span>
+                    <span class="score-val" id="wTime">--</span>
+                </div>
+                <div class="score-divider"></div>
+                <div class="score-row final">
+                    <span class="score-label">⭐ Final Score</span>
+                    <span class="score-val score-final" id="wScore">--</span>
+                </div>
+            </div>
+
             <div class="modal-btns">
                 <button id="playAgainBtn">PLAY AGAIN</button>
                 <button id="changeLevelBtn">CHANGE LEVEL</button>

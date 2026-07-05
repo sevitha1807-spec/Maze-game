@@ -509,13 +509,45 @@ function updateStats() {
 
 // ── Win modal ─────────────────────────────────
 function showWin(aiSolved = false) {
-    const label = aiSolved ? `AI solved it in` : `You solved it in`;
-    document.getElementById("winStats").textContent =
-        `${label} ${moveCount} moves and ${formatTime(seconds)}!`;
+    const optimalMoves = mazeData.steps - 1;   // path length - 1 = moves
+    const playerMoves  = moveCount;
+    const timeTaken    = seconds;
+
+    // Efficiency: how close player was to the optimal path (capped at 100%)
+    const efficiency = Math.min(100, Math.round((optimalMoves / Math.max(playerMoves, 1)) * 100));
+
+    // Score formula:
+    //   Base = 1000 points
+    //   Deduct 5 per extra move beyond optimal
+    //   Deduct 2 per second taken
+    //   Bonus multiplier per difficulty
+    const diffMultiplier = { basic: 1, medium: 1.5, hard: 2 };
+    const extraMoves     = Math.max(0, playerMoves - optimalMoves);
+    const baseScore      = 1000;
+    const movePenalty    = extraMoves * 5;
+    const timePenalty    = timeTaken * 2;
+    const rawScore       = Math.max(0, baseScore - movePenalty - timePenalty);
+    const finalScore     = Math.round(rawScore * (diffMultiplier[difficulty] || 1));
+
+    // Populate modal
+    document.getElementById("winTitle").textContent     = aiSolved ? "🤖 AI Solved It!" : "🎉 You Solved It!";
+    document.getElementById("wYourMoves").textContent   = playerMoves;
+    document.getElementById("wOptimal").textContent     = optimalMoves;
+    document.getElementById("wAlgo").textContent        = `(${mazeData.algorithm})`;
+    document.getElementById("wEfficiency").textContent  = `${efficiency}%`;
+    document.getElementById("wTime").textContent        = formatTime(timeTaken);
+    document.getElementById("wScore").textContent       = finalScore.toLocaleString();
+
+    // Colour efficiency value
+    const effEl = document.getElementById("wEfficiency");
+    effEl.style.color = efficiency >= 90 ? "#00ff88"
+                      : efficiency >= 60 ? "#ffd700"
+                      : "#ff6b6b";
+
     document.getElementById("winModal").classList.remove("hidden");
 
     // Save score to backend
-    saveScore(moveCount, seconds);
+    saveScore(playerMoves, timeTaken, finalScore);
 }
 
 function hideModal() {
@@ -523,13 +555,13 @@ function hideModal() {
 }
 
 // ── Save score ────────────────────────────────
-async function saveScore(steps, time) {
+async function saveScore(steps, time, score) {
     try {
         await fetch(`${API}/score`, {
             method:      "POST",
             headers:     { "Content-Type": "application/json" },
             credentials: "include",
-            body:        JSON.stringify({ steps, time })
+            body:        JSON.stringify({ steps, time, score, difficulty })
         });
     } catch (e) {
         // silently ignore if not logged in
