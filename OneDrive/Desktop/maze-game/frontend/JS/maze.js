@@ -17,7 +17,7 @@ const canvas = document.getElementById("mazeCanvas");
 const ctx    = canvas.getContext("2d");
 
 // Cell size based on difficulty — bigger cell = fewer cells visible = easier
-const CELL_SIZES = { basic: 36, medium: 20, hard: 13 };
+const CELL_SIZES = { basic: 36, medium: 20, hard: 15 };
 
 // ── Init ──────────────────────────────────────
 window.onload = async function () {
@@ -118,9 +118,11 @@ function drawMaze() {
                 ctx.fillStyle = "#020813";
                 ctx.fillRect(x, y, cell, cell);
 
-                // Neon wall border — slightly visible
-                ctx.strokeStyle = "rgba(0, 200, 255, 0.25)";
-                ctx.lineWidth   = cell > 14 ? 1 : 0.6;
+                // Neon wall border — scales with cell size
+                ctx.strokeStyle = cell >= 16
+                    ? "rgba(0, 200, 255, 0.25)"
+                    : "rgba(0, 180, 255, 0.45)";   // harder = more visible wall edge
+                ctx.lineWidth   = cell > 14 ? 1 : 0.8;
                 ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
 
                 // Inner highlight on top/left edges for 3D depth
@@ -134,20 +136,24 @@ function drawMaze() {
                 ctx.fillStyle = "#1e3a6e";
                 ctx.fillRect(x, y, cell, cell);
 
-                // Soft inner glow on path to add depth
-                if (cell >= 14) {
+                // Radial glow for larger cells (basic/medium)
+                if (cell >= 16) {
                     const grad = ctx.createRadialGradient(
                         x + cell / 2, y + cell / 2, 0,
                         x + cell / 2, y + cell / 2, cell * 0.7
                     );
-                    grad.addColorStop(0,   "rgba(80, 160, 255, 0.18)");
-                    grad.addColorStop(1,   "rgba(80, 160, 255, 0)");
+                    grad.addColorStop(0, "rgba(80, 160, 255, 0.22)");
+                    grad.addColorStop(1, "rgba(80, 160, 255, 0)");
                     ctx.fillStyle = grad;
+                    ctx.fillRect(x, y, cell, cell);
+                } else {
+                    // Hard level — flat bright tint instead of gradient (faster, clearer at small size)
+                    ctx.fillStyle = "rgba(60, 130, 255, 0.15)";
                     ctx.fillRect(x, y, cell, cell);
                 }
 
-                // Visible grid line on path
-                ctx.strokeStyle = "rgba(30, 120, 220, 0.18)";
+                // Subtle border only — just enough to separate adjacent path cells
+                ctx.strokeStyle = "rgba(40, 100, 200, 0.2)";
                 ctx.lineWidth   = 0.4;
                 ctx.strokeRect(x + 0.5, y + 0.5, cell - 1, cell - 1);
             }
