@@ -21,3 +21,12 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
     // TODO: connect to backend /register endpoint
     alert("Registering...");
 });
+
+// Show placeholder as text, switch to password type on first keystroke
+document.getElementById("loginPassword").addEventListener("input", function () {
+    this.type = "password";
+});
+
+document.getElementById("registerPassword").addEventListener("input", function () {
+    this.type = "password";
+});
