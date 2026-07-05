@@ -520,12 +520,13 @@ function showWin(aiSolved = false) {
     // Score: starts from base_score (tied to path length + difficulty)
     // Penalty for extra moves and time — rewards players who take the shortest path
     const extraMoves  = Math.max(0, playerMoves - optimalMoves);
-    const movePenalty = extraMoves * 3;
-    const timePenalty = timeTaken * 1;
+    const movePenalty = extraMoves * 10;   // -10 per extra move beyond optimal
+    const timePenalty = Math.floor(timeTaken / 5);  // -1 per 5 seconds
     const finalScore  = Math.max(0, baseScore - movePenalty - timePenalty);
 
     // Populate modal
     document.getElementById("winTitle").textContent     = aiSolved ? "🤖 AI Solved It!" : "🎉 You Solved It!";
+    document.getElementById("wBase").textContent        = baseScore.toLocaleString();
     document.getElementById("wYourMoves").textContent   = playerMoves;
     document.getElementById("wOptimal").textContent     = optimalMoves;
     document.getElementById("wAlgo").textContent        = `(${mazeData.algorithm})`;

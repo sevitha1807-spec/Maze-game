@@ -250,23 +250,22 @@ def generate_maze_route():
 
     shortest_steps = len(path) - 1 if path else 0   # moves = steps - 1
 
-    # Base score scales with path length — longer maze = higher reward
-    # Formula: shortest_steps * difficulty_multiplier * 10
-    diff_multiplier = {"basic": 1, "medium": 1.5, "hard": 2}
-    base_score      = int(shortest_steps * diff_multiplier[difficulty] * 10)
+    # Fixed base score per difficulty
+    # Longer path = same base, but any extra move beyond optimal reduces score
+    base_score = {"basic": 500, "medium": 1000, "hard": 2000}[difficulty]
 
     return jsonify({
-        "maze":         maze,
-        "start":        start,
-        "end":          end,
-        "path":         path,
-        "steps":        len(path),
-        "algorithm":    algo,
-        "difficulty":   difficulty,
-        "rows":         grid_rows,
-        "cols":         grid_cols,
-        "base_score":   base_score,       # max possible score for this maze
-        "optimal_moves": shortest_steps,  # moves in the shortest path
+        "maze":          maze,
+        "start":         start,
+        "end":           end,
+        "path":          path,
+        "steps":         len(path),
+        "algorithm":     algo,
+        "difficulty":    difficulty,
+        "rows":          grid_rows,
+        "cols":          grid_cols,
+        "base_score":    base_score,
+        "optimal_moves": shortest_steps,
     }), 200
 
 
