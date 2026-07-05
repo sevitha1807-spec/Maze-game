@@ -172,9 +172,9 @@ def astar_solve(maze, start, end):
 # ──────────────────────────────────────────────
 
 DIFFICULTY = {
-    "basic":  {"rows": 10, "cols": 10, "algorithm": "BFS"},
-    "medium": {"rows": 20, "cols": 20, "algorithm": "Dijkstra"},
-    "hard":   {"rows": 30, "cols": 30, "algorithm": "A*"},
+    "basic":  {"rows": 8,  "cols": 8,  "algorithm": "BFS"},
+    "medium": {"rows": 15, "cols": 15, "algorithm": "Dijkstra"},
+    "hard":   {"rows": 25, "cols": 25, "algorithm": "A*"},
 }
 
 

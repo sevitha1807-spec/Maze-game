@@ -15,8 +15,8 @@ let hintCells    = [];     // cells currently highlighted as hint
 const canvas = document.getElementById("mazeCanvas");
 const ctx    = canvas.getContext("2d");
 
-// Cell size based on difficulty
-const CELL_SIZES = { basic: 40, medium: 22, hard: 16 };
+// Cell size based on difficulty — bigger cell = fewer cells visible = easier
+const CELL_SIZES = { basic: 36, medium: 20, hard: 13 };
 
 // ── Init ──────────────────────────────────────
 window.onload = async function () {
@@ -69,10 +69,15 @@ async function loadMaze() {
         document.getElementById("algoLabel").textContent =
             `Algorithm: ${mazeData.algorithm}`;
 
-        // Size canvas
-        const cell = CELL_SIZES[difficulty];
-        canvas.width  = mazeData.cols * cell;
-        canvas.height = mazeData.rows * cell;
+        // Size canvas — clamp to 90vw max
+        const cell     = CELL_SIZES[difficulty];
+        const maxPx    = Math.floor(window.innerWidth * 0.90);
+        const rawW     = mazeData.cols * cell;
+        const rawH     = mazeData.rows * cell;
+        const scale    = rawW > maxPx ? maxPx / rawW : 1;
+        canvas.width   = Math.floor(rawW  * scale);
+        canvas.height  = Math.floor(rawH  * scale);
+        canvas.dataset.scale = scale;   // store for drawing
 
         document.getElementById("loadingMsg").style.display = "none";
         canvas.style.display = "block";
@@ -89,10 +94,12 @@ async function loadMaze() {
 // ── Draw maze on canvas ───────────────────────
 function drawMaze() {
     if (!mazeData) return;
-    const cell = CELL_SIZES[difficulty];
-    const maze = mazeData.maze;
-    const rows = mazeData.rows;
-    const cols = mazeData.cols;
+    const baseCell = CELL_SIZES[difficulty];
+    const scale    = parseFloat(canvas.dataset.scale || 1);
+    const cell     = baseCell * scale;
+    const maze     = mazeData.maze;
+    const rows     = mazeData.rows;
+    const cols     = mazeData.cols;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -165,15 +172,14 @@ function drawPlayer(r, c, cell) {
 
 // ── Draw AI solution path ─────────────────────
 function drawPath(path) {
-    const cell = CELL_SIZES[difficulty];
+    const baseCell = CELL_SIZES[difficulty];
+    const scale    = parseFloat(canvas.dataset.scale || 1);
+    const cell     = baseCell * scale;
 
     path.forEach(([r, c], i) => {
-        // Skip start and end cells
         if (i === 0 || i === path.length - 1) return;
-
         const x = c * cell;
         const y = r * cell;
-
         ctx.fillStyle = "rgba(0, 255, 255, 0.25)";
         ctx.fillRect(x + 2, y + 2, cell - 4, cell - 4);
     });
@@ -214,32 +220,31 @@ function showHint() {
 
 // ── Draw hint cells ───────────────────────────
 function drawHintCells(cell) {
-    hintCells.forEach(([r, c], idx) => {
-        const x = c * cell;
-        const y = r * cell;
+    const baseCell = CELL_SIZES[difficulty];
+    const scale    = parseFloat(canvas.dataset.scale || 1);
+    const c2       = baseCell * scale;
 
-        // Fading intensity — first step brightest
+    hintCells.forEach(([r, c], idx) => {
+        const x = c * c2;
+        const y = r * c2;
         const alpha = 0.7 - idx * 0.15;
 
         ctx.shadowColor = "#ffd700";
         ctx.shadowBlur  = 10;
-
-        ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+        ctx.fillStyle   = `rgba(255, 215, 0, ${alpha})`;
         ctx.beginPath();
         ctx.roundRect
-            ? ctx.roundRect(x + 3, y + 3, cell - 6, cell - 6, 3)
-            : ctx.rect(x + 3, y + 3, cell - 6, cell - 6);
+            ? ctx.roundRect(x + 3, y + 3, c2 - 6, c2 - 6, 3)
+            : ctx.rect(x + 3, y + 3, c2 - 6, c2 - 6);
         ctx.fill();
-
         ctx.shadowBlur = 0;
 
-        // Step number label
-        if (cell >= 18) {
+        if (c2 >= 14) {
             ctx.fillStyle    = "#000";
-            ctx.font         = `bold ${Math.max(9, cell * 0.35)}px Arial`;
+            ctx.font         = `bold ${Math.max(8, c2 * 0.35)}px Arial`;
             ctx.textAlign    = "center";
             ctx.textBaseline = "middle";
-            ctx.fillText(idx + 1, x + cell / 2, y + cell / 2);
+            ctx.fillText(idx + 1, x + c2 / 2, y + c2 / 2);
         }
     });
 }
