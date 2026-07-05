@@ -10,7 +10,7 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "maze_secret_key")
-CORS(app, supports_credentials=True)
+CORS(app, supports_credentials=True, origins=["http://127.0.0.1:5500", "http://localhost:5500"])
 
 # ──────────────────────────────────────────────
 # DB CONNECTION
