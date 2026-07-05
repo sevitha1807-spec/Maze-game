@@ -8,6 +8,8 @@ let timerInterval= null;
 let seconds      = 0;
 let solving      = false;
 let difficulty   = localStorage.getItem("difficulty") || "basic";
+let hintsLeft    = 3;
+let hintCells    = [];     // cells currently highlighted as hint
 
 // ── Canvas setup ──────────────────────────────
 const canvas = document.getElementById("mazeCanvas");
@@ -21,6 +23,7 @@ window.onload = async function () {
     await loadMaze();
 
     document.getElementById("solveBtn").addEventListener("click", aiSolve);
+    document.getElementById("hintBtn").addEventListener("click", showHint);
     document.getElementById("newBtn").addEventListener("click", loadMaze);
     document.getElementById("playAgainBtn").addEventListener("click", () => {
         hideModal();
@@ -39,7 +42,10 @@ async function loadMaze() {
     stopTimer();
     moveCount = 0;
     seconds   = 0;
+    hintsLeft = 3;
+    hintCells = [];
     updateStats();
+    updateHintBtn();
     hideModal();
 
     document.getElementById("loadingMsg").style.display = "block";
@@ -117,6 +123,11 @@ function drawMaze() {
     // Draw start
     drawCell(mazeData.start[0], mazeData.start[1], "#00ff88", "S", cell);
 
+    // Draw hint cells
+    if (hintCells.length > 0) {
+        drawHintCells(cell);
+    }
+
     // Draw player
     drawPlayer(playerPos[0], playerPos[1], cell);
 }
@@ -168,6 +179,83 @@ function drawPath(path) {
     });
 }
 
+// ── Hint: show next 3 steps from player position ──
+function showHint() {
+    if (solving || !mazeData || hintsLeft <= 0) return;
+
+    const path = mazeData.path;
+    if (!path || path.length === 0) return;
+
+    // Find player's closest position on the solution path
+    let playerIdx = -1;
+    let minDist   = Infinity;
+    for (let i = 0; i < path.length; i++) {
+        const d = Math.abs(path[i][0] - playerPos[0]) + Math.abs(path[i][1] - playerPos[1]);
+        if (d < minDist) { minDist = d; playerIdx = i; }
+    }
+
+    // Highlight next 3 steps ahead on the path
+    const HINT_STEPS = 3;
+    hintCells = [];
+    for (let i = playerIdx + 1; i <= Math.min(playerIdx + HINT_STEPS, path.length - 1); i++) {
+        hintCells.push(path[i]);
+    }
+
+    hintsLeft--;
+    updateHintBtn();
+    drawMaze();
+
+    // Auto-clear hint after 2 seconds
+    setTimeout(() => {
+        hintCells = [];
+        drawMaze();
+    }, 2000);
+}
+
+// ── Draw hint cells ───────────────────────────
+function drawHintCells(cell) {
+    hintCells.forEach(([r, c], idx) => {
+        const x = c * cell;
+        const y = r * cell;
+
+        // Fading intensity — first step brightest
+        const alpha = 0.7 - idx * 0.15;
+
+        ctx.shadowColor = "#ffd700";
+        ctx.shadowBlur  = 10;
+
+        ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
+        ctx.beginPath();
+        ctx.roundRect
+            ? ctx.roundRect(x + 3, y + 3, cell - 6, cell - 6, 3)
+            : ctx.rect(x + 3, y + 3, cell - 6, cell - 6);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        // Step number label
+        if (cell >= 18) {
+            ctx.fillStyle    = "#000";
+            ctx.font         = `bold ${Math.max(9, cell * 0.35)}px Arial`;
+            ctx.textAlign    = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(idx + 1, x + cell / 2, y + cell / 2);
+        }
+    });
+}
+
+// ── Update hint button state ──────────────────
+function updateHintBtn() {
+    const btn = document.getElementById("hintBtn");
+    const cnt = document.getElementById("hintCount");
+    cnt.textContent = `(${hintsLeft})`;
+    if (hintsLeft <= 0) {
+        btn.disabled = true;
+        btn.style.opacity = "0.4";
+        btn.style.cursor  = "not-allowed";
+    }
+}
+
 // ── Player movement ───────────────────────────
 function handleKey(e) {
     if (solving || !mazeData) return;
@@ -193,6 +281,7 @@ function handleKey(e) {
 
     playerPos = [nr, nc];
     moveCount++;
+    hintCells = [];   // clear hint on move
     updateStats();
     drawMaze();
 
