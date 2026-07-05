@@ -4,28 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Maze Game</title>
-
-   <link rel="stylesheet" href="../CSS/style.css">
+    <link rel="stylesheet" href="../CSS/style.css">
 </head>
 <body>
 
+<!-- Splash Screen -->
 <div id="splash">
-<img src="../../images/logo.jpeg" class="logo" alt="AI Maze Game Logo">
+    <img src="../../images/logo.jpeg" class="logo" alt="AI Maze Game Logo">
     <h1>AI MAZE GAME</h1>
-
     <p>Where human intuition meets artificial intelligence</p>
-
     <div class="loader"></div>
-
 </div>
 
+<!-- Main Screen -->
 <div id="main">
-    <h2>Welcome to AI Maze Game</h2>
-    <p>Please login to continue.</p>
-    <button id="loginBtn">LOGIN</button>
+
+    <!-- Shown when NOT logged in -->
+    <div id="guestView">
+        <h2>Welcome to AI Maze Game</h2>
+        <p>Please login to start playing.</p>
+        <button id="loginBtn" class="btn-primary">LOGIN</button>
+    </div>
+
+    <!-- Shown when logged in -->
+    <div id="userView" style="display:none;">
+        <h2>Welcome back, <span id="usernameDisplay" class="highlight"></span>!</h2>
+        <p>Ready to solve the maze?</p>
+        <div class="btn-row">
+            <button id="playBtn" class="btn-primary">PLAY</button>
+            <button id="logoutBtn" class="btn-secondary">LOGOUT</button>
+        </div>
+    </div>
+
+    <div id="homeMsg" class="home-msg"></div>
+
 </div>
 
 <script src="../JS/script.js"></script>
-
 </body>
 </html>

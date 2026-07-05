@@ -173,9 +173,24 @@ def login():
         return jsonify({"error": str(e)}), 500
 
 
+# CHECK SESSION
+@app.route("/check-session", methods=["GET"])
+def check_session():
+    if "user_id" in session:
+        return jsonify({
+            "logged_in": True,
+            "username":  session.get("username")
+        }), 200
+    return jsonify({"logged_in": False}), 200
+
+
 # LOGOUT
 @app.route("/logout", methods=["POST"])
 def logout():
+    session.clear()
+    return jsonify({"message": "Logged out successfully"}), 200
+
+
     session.clear()
     return jsonify({"message": "Logged out successfully"}), 200
 

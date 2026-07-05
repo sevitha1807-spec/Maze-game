@@ -227,3 +227,87 @@ body{
     }
 
 }
+
+/* Guest / User view containers */
+#guestView, #userView {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+/* Highlighted username */
+.highlight {
+    color: cyan;
+    text-shadow: 0 0 10px cyan;
+}
+
+/* Button row */
+.btn-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 30px;
+}
+
+/* Primary button */
+.btn-primary {
+    padding: 15px 50px;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 12px;
+    background: #00e5ff;
+    color: #000;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 0 20px cyan;
+    letter-spacing: 2px;
+}
+
+.btn-primary:hover {
+    background: #00bcd4;
+    transform: scale(1.08);
+    box-shadow: 0 0 30px cyan;
+}
+
+/* Secondary button (logout) */
+.btn-secondary {
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: 2px solid rgba(255, 80, 80, 0.6);
+    border-radius: 12px;
+    background: transparent;
+    color: #ff6b6b;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 2px;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 80, 80, 0.15);
+    border-color: #ff4444;
+    box-shadow: 0 0 16px rgba(255, 68, 68, 0.4);
+    transform: scale(1.05);
+}
+
+/* Home feedback message */
+.home-msg {
+    margin-top: 16px;
+    font-size: 14px;
+    padding: 8px 20px;
+    border-radius: 8px;
+    min-height: 20px;
+}
+
+.home-msg.success {
+    color: #00ff88;
+    background: rgba(0, 255, 136, 0.1);
+    border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.home-msg.error {
+    color: #ff6b6b;
+    background: rgba(255, 68, 68, 0.1);
+    border: 1px solid rgba(255, 68, 68, 0.3);
+}
