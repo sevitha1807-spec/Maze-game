@@ -1,22 +1,22 @@
 const API = "http://127.0.0.1:5000";
 
-// ── Toggle login / register cards ──────────────────────────
+// ── Toggle login / register cards ──────────────────
 
 document.getElementById("showRegister").addEventListener("click", function (e) {
     e.preventDefault();
     document.getElementById("loginCard").classList.add("hidden");
     document.getElementById("registerCard").classList.remove("hidden");
-    clearMessages();
+    clearAllErrors();
 });
 
 document.getElementById("showLogin").addEventListener("click", function (e) {
     e.preventDefault();
     document.getElementById("registerCard").classList.add("hidden");
     document.getElementById("loginCard").classList.remove("hidden");
-    clearMessages();
+    clearAllErrors();
 });
 
-// ── Password: show placeholder text, mask on typing ────────
+// ── Password: readable placeholder, mask on typing ──
 
 document.getElementById("loginPassword").addEventListener("input", function () {
     this.type = "password";
@@ -26,15 +26,35 @@ document.getElementById("registerPassword").addEventListener("input", function (
     this.type = "password";
 });
 
-// ── LOGIN ───────────────────────────────────────────────────
+// ── LOGIN ────────────────────────────────────────────
 
 document.getElementById("loginForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+    clearAllErrors();
 
-    const email    = this.querySelector('input[type="email"]').value.trim();
+    const email    = document.getElementById("loginEmail").value.trim();
     const password = document.getElementById("loginPassword").value;
 
-    setMessage("loginMsg", "Logging in...", "info");
+    // Client-side validation
+    let valid = true;
+
+    if (!email) {
+        showFieldError("loginEmailErr", "Email is required");
+        valid = false;
+    } else if (!isValidEmail(email)) {
+        showFieldError("loginEmailErr", "Enter a valid email address");
+        valid = false;
+    }
+
+    if (!password) {
+        showFieldError("loginPasswordErr", "Password is required");
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    setMsg("loginMsg", "Logging in...", "info");
+    disableBtn("loginForm", true);
 
     try {
         const res  = await fetch(`${API}/login`, {
@@ -47,82 +67,127 @@ document.getElementById("loginForm").addEventListener("submit", async function (
         const data = await res.json();
 
         if (res.ok) {
-            setMessage("loginMsg", `Welcome back, ${data.username}!`, "success");
+            setMsg("loginMsg", `Welcome back, ${data.username}! Redirecting...`, "success");
             setTimeout(() => {
                 window.location.href = "maze.html";
             }, 1000);
         } else {
-            setMessage("loginMsg", data.error || "Login failed", "error");
+            setMsg("loginMsg", data.error || "Login failed. Try again.", "error");
+            disableBtn("loginForm", false);
         }
 
     } catch (err) {
-        setMessage("loginMsg", "Cannot connect to server. Is the backend running?", "error");
+        setMsg("loginMsg", "Cannot reach server. Make sure the backend is running.", "error");
+        disableBtn("loginForm", false);
     }
 });
 
-// ── REGISTER ────────────────────────────────────────────────
+// ── REGISTER ─────────────────────────────────────────
 
 document.getElementById("registerForm").addEventListener("submit", async function (e) {
     e.preventDefault();
+    clearAllErrors();
 
-    const username = this.querySelector('input[type="text"]').value.trim();
-    const email    = this.querySelector('input[type="email"]').value.trim();
+    const username = document.getElementById("regUsername").value.trim();
+    const email    = document.getElementById("regEmail").value.trim();
     const password = document.getElementById("registerPassword").value;
 
-    if (password.length < 6) {
-        setMessage("registerMsg", "Password must be at least 6 characters", "error");
-        return;
+    // Client-side validation
+    let valid = true;
+
+    if (!username) {
+        showFieldError("regUsernameErr", "Username is required");
+        valid = false;
+    } else if (username.length < 3) {
+        showFieldError("regUsernameErr", "Username must be at least 3 characters");
+        valid = false;
     }
 
-    setMessage("registerMsg", "Creating account...", "info");
+    if (!email) {
+        showFieldError("regEmailErr", "Email is required");
+        valid = false;
+    } else if (!isValidEmail(email)) {
+        showFieldError("regEmailErr", "Enter a valid email address");
+        valid = false;
+    }
+
+    if (!password) {
+        showFieldError("regPasswordErr", "Password is required");
+        valid = false;
+    } else if (password.length < 6) {
+        showFieldError("regPasswordErr", "Password must be at least 6 characters");
+        valid = false;
+    }
+
+    if (!valid) return;
+
+    setMsg("registerMsg", "Creating account...", "info");
+    disableBtn("registerForm", true);
 
     try {
         const res  = await fetch(`${API}/register`, {
-            method:  "POST",
-            headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ username, email, password })
+            method:      "POST",
+            headers:     { "Content-Type": "application/json" },
+            credentials: "include",
+            body:        JSON.stringify({ username, email, password })
         });
 
         const data = await res.json();
 
         if (res.ok) {
-            setMessage("registerMsg", "Registered! Please login.", "success");
+            setMsg("registerMsg", "Account created! Please login.", "success");
             setTimeout(() => {
                 document.getElementById("registerCard").classList.add("hidden");
                 document.getElementById("loginCard").classList.remove("hidden");
+                clearAllErrors();
             }, 1500);
         } else {
-            setMessage("registerMsg", data.error || "Registration failed", "error");
+            setMsg("registerMsg", data.error || "Registration failed. Try again.", "error");
+            disableBtn("registerForm", false);
         }
 
     } catch (err) {
-        setMessage("registerMsg", "Cannot connect to server. Is the backend running?", "error");
+        setMsg("registerMsg", "Cannot reach server. Make sure the backend is running.", "error");
+        disableBtn("registerForm", false);
     }
 });
 
-// ── Helpers ─────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────
 
-function setMessage(id, text, type) {
-    let el = document.getElementById(id);
-    if (!el) {
-        el = document.createElement("p");
-        el.id = id;
-        el.className = "form-msg";
-    }
-    el.textContent = text;
-    el.className   = `form-msg ${type}`;
-
-    // Insert before the submit button of the active form
-    if (id === "loginMsg") {
-        document.getElementById("loginForm").querySelector(".btn").before(el);
-    } else {
-        document.getElementById("registerForm").querySelector(".btn").before(el);
-    }
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function clearMessages() {
+function showFieldError(id, msg) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = msg;
+}
+
+function setMsg(id, text, type) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = text;
+    el.className   = `form-msg ${type}`;
+}
+
+function clearAllErrors() {
+    ["loginEmailErr", "loginPasswordErr", "regUsernameErr",
+     "regEmailErr", "regPasswordErr"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = "";
+    });
     ["loginMsg", "registerMsg"].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.remove();
+        if (el) { el.textContent = ""; el.className = "form-msg"; }
     });
+}
+
+function disableBtn(formId, state) {
+    const btn = document.getElementById(formId).querySelector(".btn");
+    if (btn) {
+        btn.disabled    = state;
+        btn.textContent = state
+            ? (formId === "loginForm" ? "LOGGING IN..." : "REGISTERING...")
+            : (formId === "loginForm" ? "LOGIN"         : "REGISTER");
+    }
 }

@@ -19,15 +19,18 @@
             <h1>AI MAZE <span>GAME</span></h1>
             <p>Initialize your agent credentials</p>
         </div>
-        <form id="loginForm">
+        <form id="loginForm" novalidate>
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" placeholder="Enter Email" required>
+                <label for="loginEmail">Email</label>
+                <input type="email" id="loginEmail" placeholder="Enter Email" required>
+                <span class="field-error" id="loginEmailErr"></span>
             </div>
             <div class="form-group">
-                <label>Password</label>
+                <label for="loginPassword">Password</label>
                 <input type="text" id="loginPassword" placeholder="Enter Password" required>
+                <span class="field-error" id="loginPasswordErr"></span>
             </div>
+            <p class="form-msg" id="loginMsg"></p>
             <button class="btn" type="submit">LOGIN</button>
         </form>
         <div class="switch-form">
@@ -44,19 +47,23 @@
             <h1>AI MAZE <span>GAME</span></h1>
             <p>Create your account</p>
         </div>
-        <form id="registerForm">
+        <form id="registerForm" novalidate>
             <div class="form-group">
-                <label>Username</label>
-                <input type="text" placeholder="Username" required>
+                <label for="regUsername">Username</label>
+                <input type="text" id="regUsername" placeholder="Username" required>
+                <span class="field-error" id="regUsernameErr"></span>
             </div>
             <div class="form-group">
-                <label>Email</label>
-                <input type="email" placeholder="Email" required>
+                <label for="regEmail">Email</label>
+                <input type="email" id="regEmail" placeholder="Email" required>
+                <span class="field-error" id="regEmailErr"></span>
             </div>
             <div class="form-group">
-                <label>Password</label>
-                <input type="text" id="registerPassword" placeholder="Password" required>
+                <label for="registerPassword">Password</label>
+                <input type="text" id="registerPassword" placeholder="Min 6 characters" required>
+                <span class="field-error" id="regPasswordErr"></span>
             </div>
+            <p class="form-msg" id="registerMsg"></p>
             <button class="btn" type="submit">REGISTER</button>
         </form>
         <div class="switch-form">

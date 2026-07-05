@@ -168,3 +168,20 @@ body {
     color: #ff6b6b;
     border: 1px solid rgba(255, 60, 60, 0.3);
 }
+
+/* Field-level validation errors */
+.field-error {
+    display: block;
+    color: #ff6b6b;
+    font-size: 11px;
+    margin-top: 4px;
+    min-height: 14px;
+}
+
+/* Disabled button state */
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
