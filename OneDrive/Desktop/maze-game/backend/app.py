@@ -130,13 +130,35 @@ def login():
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM players WHERE email = %s", (email,))
         user = cursor.fetchone()
+
+        if not user:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Invalid email or password"}), 401
+
+        stored = user["password"]
+        password_ok = False
+
+        # Check if password is bcrypt hashed (starts with $2b$ or $2a$)
+        if stored.startswith("$2b$") or stored.startswith("$2a$"):
+            password_ok = bcrypt.checkpw(password.encode("utf-8"), stored.encode("utf-8"))
+        else:
+            # Plain text password — compare directly, then upgrade to bcrypt
+            if stored == password:
+                password_ok = True
+                hashed = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+                upgrade_cursor = conn.cursor()
+                upgrade_cursor.execute(
+                    "UPDATE players SET password = %s WHERE id = %s",
+                    (hashed, user["id"])
+                )
+                conn.commit()
+                upgrade_cursor.close()
+
         cursor.close()
         conn.close()
 
-        if not user:
-            return jsonify({"error": "Invalid email or password"}), 401
-
-        if not bcrypt.checkpw(password.encode("utf-8"), user["password"].encode("utf-8")):
+        if not password_ok:
             return jsonify({"error": "Invalid email or password"}), 401
 
         session["user_id"]  = user["id"]
